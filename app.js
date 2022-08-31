@@ -5,7 +5,7 @@ const app = express();
 const path = require("path");
 app.set("view engine", "pug");
 
-// app.set("views", path.resolve("./src/views"));
+// app.set("views", path.resolve("./src/views"))
 const userRouter = require('./src/routers/user')
 const taskRouter = require('./src/routers/task')
 app.use(bodyParser.json());
@@ -13,7 +13,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(userRouter)
 app.use(taskRouter)
-
 
 const rootPath = path.resolve("./dist");
 app.use(express.static(rootPath));

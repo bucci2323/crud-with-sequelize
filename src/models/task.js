@@ -2,6 +2,8 @@ const sequelize = require("../Database/connection");
 const Sequelize = require("sequelize");
 
 const Task = (module.exports = sequelize.define("task", {
+
+
   description: {
     type: Sequelize.STRING(),
     required: true,
@@ -18,5 +20,9 @@ const Task = (module.exports = sequelize.define("task", {
     ref: "User",
   },
 }));
+
+Task.associate = function(models) {
+  Task.belongsTo(models.User, {foreignKey: 'owner', as: 'owner'})
+};
 
 module.exports = Task;
