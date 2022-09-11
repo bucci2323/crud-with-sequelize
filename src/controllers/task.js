@@ -1,11 +1,7 @@
-const express = require("express");
 const Task = require("../models/task");
-// const auth = require("../middleware/auth");
-const router = new express.Router();
 const Joi = require("joi");
-const validator = require("validator");
-const userSchema = require("../routers/user");
-// const passcode = require("../middleware/passcode");
+const User = require("../models/user");
+const { ValidationError, NotFoundError } = require("../middleware/helper");
 
 const taskSchema = Joi.object().keys({
   description: Joi.string().required(),
@@ -14,14 +10,7 @@ const taskSchema = Joi.object().keys({
   passcode: Joi.string().required(),
 });
 
-const updateSchema = Joi.object().keys({
-  description: Joi.string(),
-  status: Joi.string(),
-  level: Joi.string(),
-  passcode: Joi.string().required(),
-});
-
-const createTask = async (req, res) => {
+const createTask = async (req, res, next) => {
   try {
     const { error, value } = taskSchema.validate(req.body);
 
@@ -31,67 +20,50 @@ const createTask = async (req, res) => {
 
     const task = new Task({
       ...value,
-      owner: req.user.id,
+      user_id: req.user.id,
     });
     await task.save();
     res.status(201).send(task);
   } catch (e) {
-    console.log(e);
-    res.status(400).send(e);
+    next(e);
   }
 };
-const getTask = async (req, res) => {
-
-        res.send(req.user.task);
-    }
-
-// router.get("/tasks", auth, async (req, res) => {
-//   const match = {};
-//   const sort = {};
-//   if (req.query.description) {
-//     match.description = req.query.description === "my small description";
-//   }
-
-//   try {
-//     await req.task.populate({
-//       path: "tasks",
-//       match,
-//       options: {
-//         // limit: parseInt(req.query.limit),
-//         // skip: parseInt(req.query.skip),
-//         // sort,
-//       },
-//     });
-
-    
-
-//   res.send(req.user.task);
-//   } catch (e) {
-//     res.status(500).send(e);
-//     console.log('error is' , e)
-//   }
-
-// });
+const getTasks = async (req, res, next) => {
+  // getting all the tasks that belongs to the req.user
+  // getting all the tasks that has a user id of req.user.id
+  try {
+    const tasks = await Task.findAll({
+      where: {
+        user_id: req.user.id,
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "name", "email"],
+        },
+      ],
+    });
+    res.json(tasks);
+  } catch (error) {
+    next(error);
+  }
+};
 
 const updateTask = async (req, res) => {
   const updates = Object.keys(req.body);
-  allowedUpdates = ["description", "level", "status", "passcode"];
+  allowedUpdates = ["description", "status", "passcode"];
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
-
-  if (!isValidOperation) {
-    res.status(400).send({ error: "Invalid updates" });
-  }
+  if (!isValidOperation) throw new ValidationError("invalid updates");
   try {
     const task = await Task.findOne({
       id: req.params.id,
-      owner: req.user.id,
+      user_id: req.user.id,
     });
 
-    if (!task) {
-      return res.status(404).send();
-    }
+    if (!task) throw new NotFoundError("No task");
 
     updates.forEach((update) => (task[update] = req.body[update]));
     await task.save();
@@ -101,17 +73,18 @@ const updateTask = async (req, res) => {
   }
 };
 
+const deleteTask = async (req, res, next) => {
+  try {
+    const task = await Task.findOne({
+      id: req.params.id,
+      user_id: req.user.id,
+    });
+    if (!task) throw new NotFoundError("No such task!");
+    await task.destroy();
+    res.send({ message: "deleted successfully" });
+  } catch (e) {
+    next();
+  }
+};
 
-
-  const deleteTask =  async (req, res) => {
-    try {
-      await req.task.destroy()
-      res.send(req.task);
-    } catch (e) {
-      res.status(500).send(e);
-      console.log("this is my rrr ", e);
-    }
-  };
-
-
-  module.exports = { createTask, getTask, updateTask, deleteTask}
+module.exports = { createTask, getTasks, updateTask, deleteTask };

@@ -2,35 +2,27 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("tasks", {
       id: {
         type: Sequelize.INTEGER(),
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
-        type: Sequelize.STRING(20),
-        required: true,
-        trim: true,
-      },
-      email: {
-        type: Sequelize.STRING(),
-        unique: true,
-        required: true,
-      },
-      password: {
-        type: Sequelize.STRING(20),
-        required: true,
-      },
-      passcode: {
-        type: Sequelize.STRING(4),
-        required: true,
-      },
-
-      tokens: {
+      description: {
         type: Sequelize.STRING(),
         required: true,
+      },
+      completed: {
+        type: Sequelize.BOOLEAN(),
+        default: false,
+      },
+      user_id: {
+        type: Sequelize.INTEGER(),
+        required: true,
+        references: {
+          model: "users",
+        },
       },
 
       createdAt: Sequelize.DATE,
@@ -39,7 +31,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("tasks");
   },
 };
-

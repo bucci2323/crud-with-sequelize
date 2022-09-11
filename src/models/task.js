@@ -1,28 +1,23 @@
-const sequelize = require("../Database/connection");
-const Sequelize = require("sequelize");
+const { DataTypes, sequelize } = require("../Database/connection");
+const User = require("./user");
 
-const Task = (module.exports = sequelize.define("task", {
-
-
+const Task = sequelize.define("task", {
+  user_id: {
+    type: DataTypes.INTEGER,
+    required: true,
+  },
   description: {
-    type: Sequelize.STRING(),
+    type: DataTypes.STRING,
     required: true,
   },
   completed: {
-    type: Sequelize.BOOLEAN(),
+    type: DataTypes.BOOLEAN,
     default: false,
-    required: true
-  },
-  owner: {
-    type: Sequelize.STRING(),
-    //   type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User",
   },
-}));
+});
 
-Task.associate = function(models) {
-  Task.belongsTo(models.User, {foreignKey: 'owner', as: 'owner'})
-};
+// For belongsTo, the foreign key is the key in the task model that references a key in the user model
+Task.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
 module.exports = Task;
