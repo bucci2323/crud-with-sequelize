@@ -1,7 +1,7 @@
 const Task = require("../models/task");
 const Joi = require("joi");
 const User = require("../models/user");
-const { ValidationError, NotFoundError } = require("../middleware/helper");
+const { ValidationError, NotFoundError, FieldRequiredError } = require("../middleware/helper");
 
 const taskSchema = Joi.object().keys({
   description: Joi.string().required(),
@@ -13,11 +13,7 @@ const taskSchema = Joi.object().keys({
 const createTask = async (req, res, next) => {
   try {
     const { error, value } = taskSchema.validate(req.body);
-
-    if (error) {
-      throw new Error(error.details[0].message);
-    }
-
+    if (error) throw new FieldRequiredError(`my error!!!`);
     const task = new Task({
       ...value,
       user_id: req.user.id,
