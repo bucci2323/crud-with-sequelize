@@ -1,7 +1,7 @@
 const Task = require("../models/task");
 const Joi = require("joi");
 const User = require("../models/user");
-const { ValidationError, NotFoundError, FieldRequiredError } = require("../middleware/helper");
+const { ValidationError, NotFoundError, FieldRequiredError, UnauthorizedError } = require("../middleware/helper");
 
 const taskSchema = Joi.object().keys({
   description: Joi.string().required(),
@@ -16,7 +16,7 @@ const createTask = async (req, res, next) => {
     if (error) throw new FieldRequiredError(`my error!!!`);
     const task = new Task({
       ...value,
-      user_id: req.user.id,
+      user_id: req.user.id, jjnni
     });
     await task.save();
     res.status(201).send(task);
@@ -46,26 +46,51 @@ const getTasks = async (req, res, next) => {
   }
 };
 
-const updateTask = async (req, res) => {
-  const updates = Object.keys(req.body);
-  allowedUpdates = ["description", "status", "passcode"];
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
-  if (!isValidOperation) throw new ValidationError("invalid updates");
+const updateTask = async (req, res, next) => {
+  // const updates = Object.keys(req.body);
+  // allowedUpdates = ["description", "status", "passcode"];
+  // const isValidOperation = updates.every((update) =>
+  //   allowedUpdates.includes(update)
+  // );
+  // if (!isValidOperation) throw new ValidationError("invalid updates");
+  // try {
+  //   const task = await Task.findOne({
+  //     id: req.params.id,
+  //     user_id: req.user.id,
+  //   });
+
+  //   if (!task) throw new NotFoundError("No task");
+
+  //   updates.forEach((update) => (task[update] = req.body[update]));
+  //   await task.save();
+  //   res.send(task);
+  // } catch (e) {
+  //   res.status(400).send(e);
+  // }
   try {
-    const task = await Task.findOne({
-      id: req.params.id,
-      user_id: req.user.id,
+    const { loggedUser } = req;
+    if (!loggedUser) throw new UnauthorizedError();
+
+    const {
+      user: { password },
+      user,
+    } = req.body;
+
+    Object.entries(user).forEach((entry) => {
+      const [key, value] = entry;
+
+      if (value !== undefined && key !== "password") loggedUser[key] = value;
     });
 
-    if (!task) throw new NotFoundError("No task");
+    if (password !== undefined || password !== "") {
+      loggedUser.password = await (password);
+    }
 
-    updates.forEach((update) => (task[update] = req.body[update]));
-    await task.save();
-    res.send(task);
-  } catch (e) {
-    res.status(400).send(e);
+    await loggedUser.save();
+
+    res.json({ user: loggedUser });
+  } catch (error) {
+    next(error);
   }
 };
 

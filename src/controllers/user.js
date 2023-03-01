@@ -5,6 +5,7 @@ const {
   ValidationError,
   FieldRequiredError,
   AlreadyTakenError,
+  UnauthorizedError
 } = require("../middleware/helper");
 const mySchema = Joi.object().keys({
   passcode: Joi.string().required(),
@@ -53,6 +54,7 @@ const signIn = async (req, res, next) => {
 
 // update user ////
 const updateUser = async (req, res, next) => {
+ 
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password", "passcode"];
   const isValidOperation = updates.every((update) =>
