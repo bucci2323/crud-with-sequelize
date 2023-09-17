@@ -8,3 +8,4 @@ const sequelize = new Sequelize("taskapp", "root", "123456789", {
 
 module.exports = { sequelize, DataTypes };
 // global.exports = sequelize;
+

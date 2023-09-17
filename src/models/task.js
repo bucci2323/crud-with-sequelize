@@ -2,6 +2,12 @@ const { DataTypes, sequelize } = require("../Database/connection");
 const User = require("./user");
 
 const Task = sequelize.define("task", {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: DataTypes.INTEGER
+  },
   user_id: {
     type: DataTypes.INTEGER,
     required: true,

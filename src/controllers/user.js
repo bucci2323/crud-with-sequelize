@@ -15,7 +15,6 @@ const mySchema = Joi.object().keys({
 
 // create user
 const signUp = async (req, res, next) => {
-  const user = new User(req.body);
   try {
     const { name, email, passcode, password } = req.body;
     if (!name) throw new FieldRequiredError(`A username`);
@@ -26,9 +25,11 @@ const signUp = async (req, res, next) => {
       where: { email: req.body.email },
     });
     if (userExists) throw new AlreadyTakenError("Email", "try logging in");
+    const user = new User(req.body);
 
+    await user.save(); 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
-    await user.save();
+
     res.status(201).json({ user, token });
   } catch (e) {
     next(e);
@@ -39,7 +40,7 @@ const signUp = async (req, res, next) => {
 const signIn = async (req, res, next) => {
   try {
     const { error, value } = mySchema.validate(req.body);
-    if (error) throw new FieldRequiredError(`my error!!!`);
+    if (error) throw new FieldRequiredError(error);
     const user = await User.findOne({ where: { email: value.email } });
     if (!user) throw new FieldRequiredError(`unable to login!!!!`);
     if (user.passcode !== value.passcode)

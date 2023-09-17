@@ -16,7 +16,7 @@ const createTask = async (req, res, next) => {
     if (error) throw new FieldRequiredError(`my error!!!`);
     const task = new Task({
       ...value,
-      user_id: req.user.id, jjnni
+      user_id: req.user.id
     });
     await task.save();
     res.status(201).send(task);

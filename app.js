@@ -8,6 +8,7 @@ app.set("view engine", "pug");
 // app.set("views", path.resolve("./src/views"))
 const userRouter = require('./src/routers/user')
 const taskRouter = require('./src/routers/task')
+const errorHandler = require('./src/middleware/errorHandler')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -20,6 +21,8 @@ app.use(express.static(rootPath));
 // // db connection
 require("./src/Database/connection");
 const port = process.env.PORT
+
+app.use(errorHandler)
 
 
 app.listen(port, () => {

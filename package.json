@@ -1,7 +1,6 @@
 {
   "name": "taskapp_mysql",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "dev": "env-cmd -f ./config/dev.env nodemon src/app.js",
@@ -21,13 +20,23 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
-    "sequelize": "^6.21.3",
-    "sequelize-cli": "^6.4.1",
+    "sequelize": "^6.32.1",
     "sqlite3": "^5.0.11",
     "validator": "^13.7.0"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.19"
-  }
+    "nodemon": "^2.0.19",
+    "sequelize-cli": "^6.6.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bucci2323/crud-with-sequelize.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bucci2323/crud-with-sequelize/issues"
+  },
+  "homepage": "https://github.com/bucci2323/crud-with-sequelize#readme",
+  "keywords": [],
+  "description": ""
 }
