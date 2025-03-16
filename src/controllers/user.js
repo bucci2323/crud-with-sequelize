@@ -64,7 +64,7 @@ const updateUser = async (req, res, next) => {
   if (!isValidOperation) throw new ValidationError("invalid updates");
 
   try {
-    updates.forEach((update) => (req.user[update] = req.body[update]));
+    updates.forEach((update) => (req. user[update] = req.body[update]));
 
     await req.user.save();
     res.send(req.user);
